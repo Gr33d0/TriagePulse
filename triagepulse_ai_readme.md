@@ -90,8 +90,8 @@ Key operational challenges include:
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/your-username/triage-pulse-ai.git
-cd triage-pulse-ai
+git clone https://github.com/Gr33d0/triagePulse.git
+cd triagePulse
 ```
 
 ---
