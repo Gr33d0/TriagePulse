@@ -1,4 +1,5 @@
 # Receive unread email subjects from a Gmail account using IMAP.
+from collections.abc import Callable
 from email import message_from_bytes
 from email.header import decode_header, make_header
 from email.utils import parseaddr
@@ -30,7 +31,9 @@ def _get_text_body(message) -> str:
     return ""
 
 
-def get_unseen_emails() -> list[dict[str, str]]:
+def get_unseen_emails(
+    save_email: Callable[[dict[str, str], str], None],
+) -> list[dict[str, str]]:
     imap_url = os.getenv("EMAIL_IMAP_URL")
     user = os.getenv("EMAIL_USER")
     password = os.getenv("EMAIL_PASSWORD")
@@ -47,32 +50,37 @@ def get_unseen_emails() -> list[dict[str, str]]:
         if status != "OK":
             raise imaplib.IMAP4.error("Could not select the Inbox")
 
-        status, data = connection.search(None, "UNSEEN")
+        status, data = connection.uid("search", None, "UNSEEN")
         if status != "OK":
             raise imaplib.IMAP4.error("Could not search for unread email")
 
         emails = []
-        for message_id in data[0].split():
-            status, message_data = connection.fetch(message_id, "(BODY.PEEK[])")
+        for message_uid in data[0].split():
+            uid = int(message_uid)
+            status, message_data = connection.uid("fetch", message_uid, "(BODY.PEEK[])")
             if status != "OK":
-                raise imaplib.IMAP4.error(f"Could not fetch email {message_id.decode()}")
+                raise imaplib.IMAP4.error(f"Could not fetch email {uid}")
 
             raw_message = next(
                 (part[1] for part in message_data if isinstance(part, tuple)),
                 None,
             )
             if raw_message is None:
-                raise imaplib.IMAP4.error(f"Email {message_id.decode()} had no message data")
+                raise imaplib.IMAP4.error(f"Email {uid} had no message data")
 
             message = message_from_bytes(raw_message)
             _, sender_email = parseaddr(_decode_header_value(message.get("From")))
-            emails.append(
-                {
-                    "email": sender_email,
-                    "titulo": _decode_header_value(message.get("Subject")),
-                    "assunto": _get_text_body(message),
-                }
-            )
+            email = {
+                "email": sender_email,
+                "title": _decode_header_value(message.get("Subject")),
+                "body": _get_text_body(message),
+            }
+            save_email(email, user)
+
+            status, _ = connection.uid("store", message_uid, "+FLAGS", "(\\Seen)")
+            if status != "OK":
+                raise imaplib.IMAP4.error(f"Could not mark email {uid} as read")
+            emails.append(email)
 
         return emails
     finally:
