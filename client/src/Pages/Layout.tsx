@@ -22,12 +22,12 @@ export default function Layout({ children, currentPage, onPageChange }: LayoutPr
 				<a href="/" className="text-xl font-bold text-blue-700 no-underline">
 					TriagePulse
 				</a>
-				<span className="text-sm text-slate-500">Painel de atendimento</span>
+				<span className="text-sm text-slate-500">Support dashboard</span>
 			</header>
 
 			<div className="flex min-h-[calc(100vh-4rem)]">
 				<aside className="w-60 shrink-0 border-r border-slate-200 bg-white p-5">
-					<nav aria-label="Navegação principal" className="grid gap-1.5">
+					<nav aria-label="Main navigation" className="grid gap-1.5">
 						<a
 							href="/inbox"
 							onClick={(event) => {
@@ -37,7 +37,7 @@ export default function Layout({ children, currentPage, onPageChange }: LayoutPr
 							className={linkClassName(currentPage === 'inbox')}
 							aria-current={currentPage === 'inbox' ? 'page' : undefined}
 						>
-							Caixa de entrada
+							Inbox
 						</a>
 						<a
 							href="/dashboard"

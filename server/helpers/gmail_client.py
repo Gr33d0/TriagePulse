@@ -1,5 +1,6 @@
 # Receive unread email subjects from a Gmail account using IMAP.
-from collections.abc import Callable
+from collections.abc import Iterator
+from dataclasses import dataclass
 from email import message_from_bytes
 from email.header import decode_header, make_header
 from email.utils import parseaddr
@@ -9,6 +10,14 @@ import os
 from dotenv import load_dotenv
 
 load_dotenv()
+
+
+@dataclass(frozen=True)
+class FetchedEmail:
+    sender: str
+    subject: str
+    body: str
+    mailbox: str
 
 
 def _decode_header_value(value: str | None) -> str:
@@ -31,9 +40,7 @@ def _get_text_body(message) -> str:
     return ""
 
 
-def get_unseen_emails(
-    save_email: Callable[[dict[str, str], str], None],
-) -> list[dict[str, str]]:
+def get_unseen_emails() -> Iterator[FetchedEmail]:
     imap_url = os.getenv("EMAIL_IMAP_URL")
     user = os.getenv("EMAIL_USER")
     password = os.getenv("EMAIL_PASSWORD")
@@ -54,7 +61,6 @@ def get_unseen_emails(
         if status != "OK":
             raise imaplib.IMAP4.error("Could not search for unread email")
 
-        emails = []
         for message_uid in data[0].split():
             uid = int(message_uid)
             status, message_data = connection.uid("fetch", message_uid, "(BODY.PEEK[])")
@@ -70,19 +76,17 @@ def get_unseen_emails(
 
             message = message_from_bytes(raw_message)
             _, sender_email = parseaddr(_decode_header_value(message.get("From")))
-            email = {
-                "email": sender_email,
-                "title": _decode_header_value(message.get("Subject")),
-                "body": _get_text_body(message),
-            }
-            save_email(email, user)
+            email = FetchedEmail(
+                sender=sender_email,
+                subject=_decode_header_value(message.get("Subject")),
+                body=_get_text_body(message),
+                mailbox=user,
+            )
+            yield email
 
             status, _ = connection.uid("store", message_uid, "+FLAGS", "(\\Seen)")
             if status != "OK":
                 raise imaplib.IMAP4.error(f"Could not mark email {uid} as read")
-            emails.append(email)
-
-        return emails
     finally:
         if logged_in:
             connection.logout()

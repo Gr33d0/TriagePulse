@@ -7,14 +7,14 @@ type AuthFormProps = {
 export function CreateAccount({ onSubmit }: AuthFormProps) {
 	return (
 		<form onSubmit={onSubmit}>
-			<h2>Criar conta</h2>
-			<label htmlFor="create-name">Nome</label>
+			<h2>Create account</h2>
+			<label htmlFor="create-name">Name</label>
 			<input id="create-name" name="name" type="text" autoComplete="name" required />
 
-			<label htmlFor="create-email">E-mail</label>
+			<label htmlFor="create-email">Email</label>
 			<input id="create-email" name="email" type="email" autoComplete="email" required />
 
-			<label htmlFor="create-password">Senha</label>
+			<label htmlFor="create-password">Password</label>
 			<input
 				id="create-password"
 				name="password"
@@ -23,7 +23,7 @@ export function CreateAccount({ onSubmit }: AuthFormProps) {
 				minLength={8}
 				required
 			/>
-			<button type="submit">Criar conta</button>
+			<button type="submit">Create account</button>
 		</form>
 	);
 }
@@ -31,11 +31,11 @@ export function CreateAccount({ onSubmit }: AuthFormProps) {
 export function SignIn({ onSubmit }: AuthFormProps) {
 	return (
 		<form onSubmit={onSubmit}>
-			<h2>Entrar</h2>
-			<label htmlFor="signin-email">E-mail</label>
+			<h2>Sign in</h2>
+			<label htmlFor="signin-email">Email</label>
 			<input id="signin-email" name="email" type="email" autoComplete="email" required />
 
-			<label htmlFor="signin-password">Senha</label>
+			<label htmlFor="signin-password">Password</label>
 			<input
 				id="signin-password"
 				name="password"
@@ -43,7 +43,7 @@ export function SignIn({ onSubmit }: AuthFormProps) {
 				autoComplete="current-password"
 				required
 			/>
-			<button type="submit">Entrar</button>
+			<button type="submit">Sign in</button>
 		</form>
 	);
 }
@@ -57,16 +57,16 @@ export default function Login() {
 
 	return (
 		<main>
-			<nav aria-label="Acesso à conta">
+			<nav aria-label="Account access">
 				<button type="button" onClick={() => setMode("signin")} aria-pressed={mode === "signin"}>
-					Entrar
+					Sign in
 				</button>
 				<button
 					type="button"
 					onClick={() => setMode("register")}
 					aria-pressed={mode === "register"}
 				>
-					Criar conta
+					Create account
 				</button>
 			</nav>
 			{mode === "signin" ? (

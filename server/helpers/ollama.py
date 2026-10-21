@@ -1,1 +1,0 @@
-#ollama is going to 

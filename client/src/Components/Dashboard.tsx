@@ -1,15 +1,15 @@
 const metrics = [
-	{ label: "Pacientes atendidos", value: "1.284", change: "+12,8%", icon: "♙", tone: "blue" },
-	{ label: "Em espera", value: "38", change: "−4,3%", icon: "◷", tone: "amber" },
-	{ label: "Tempo médio", value: "18 min", change: "−2 min", icon: "⌁", tone: "purple" },
-	{ label: "Alta hoje", value: "96", change: "+8,2%", icon: "✓", tone: "green" },
+	{ label: "Patients served", value: "1,284", change: "+12.8%", icon: "♙", tone: "blue" },
+	{ label: "Waiting", value: "38", change: "−4.3%", icon: "◷", tone: "amber" },
+	{ label: "Average time", value: "18 min", change: "−2 min", icon: "⌁", tone: "purple" },
+	{ label: "Discharged today", value: "96", change: "+8.2%", icon: "✓", tone: "green" },
 ];
 
 const cases = [
-	{ initials: "ML", name: "Mariana Lima", detail: "Dor abdominal · 12:42", priority: "Urgente", color: "rose" },
-	{ initials: "RC", name: "Rafael Costa", detail: "Febre · 12:35", priority: "Moderado", color: "amber" },
-	{ initials: "AS", name: "Ana Souza", detail: "Tosse persistente · 12:18", priority: "Baixo", color: "green" },
-	{ initials: "PM", name: "Pedro Martins", detail: "Enxaqueca · 11:56", priority: "Moderado", color: "amber" },
+	{ initials: "ML", name: "Mariana Lima", detail: "Abdominal pain · 12:42", priority: "Urgent", color: "rose" },
+	{ initials: "RC", name: "Rafael Costa", detail: "Fever · 12:35", priority: "Moderate", color: "amber" },
+	{ initials: "AS", name: "Ana Souza", detail: "Persistent cough · 12:18", priority: "Low", color: "green" },
+	{ initials: "PM", name: "Pedro Martins", detail: "Migraine · 11:56", priority: "Moderate", color: "amber" },
 ];
 
 const chartPoints = "0,112 48,94 96,103 144,62 192,76 240,46 288,59 336,25 384,39 432,14";
@@ -33,17 +33,17 @@ export default function Dashboard() {
 			<div className="mx-auto max-w-[1240px]">
 				<header className="mb-[30px] flex flex-col items-start justify-between gap-5 min-[521px]:flex-row min-[521px]:items-center">
 					<div>
-						<p className="mb-[7px] text-xs font-bold uppercase tracking-[.09em] text-[#788397]">TriagePulse · Visão geral</p>
-						<h1 className="text-[clamp(25px,3vw,32px)] font-bold tracking-[-.04em]">Bom dia, equipe 👋</h1>
-						<p className="mt-[7px] text-sm text-[#7c8798]">Acompanhe o fluxo de atendimento da sua unidade.</p>
+						<p className="mb-[7px] text-xs font-bold uppercase tracking-[.09em] text-[#788397]">TriagePulse · Overview</p>
+						<h1 className="text-[clamp(25px,3vw,32px)] font-bold tracking-[-.04em]">Good morning, team 👋</h1>
+						<p className="mt-[7px] text-sm text-[#7c8798]">Monitor your facility's support workflow.</p>
 					</div>
 					<div className="flex w-full items-center justify-between gap-3 min-[521px]:w-auto">
-						<div className="flex h-[42px] items-center gap-[9px] rounded-[11px] border border-[#e7ebf2] bg-white px-[13px] text-[13px] font-semibold text-[#526075]"><span>▦</span> Hoje, 24 de outubro</div>
+						<div className="flex h-[42px] items-center gap-[9px] rounded-[11px] border border-[#e7ebf2] bg-white px-[13px] text-[13px] font-semibold text-[#526075]"><span>▦</span> Today, October 24</div>
 						<div className="flex h-[42px] items-center gap-[9px] rounded-[11px] border border-[#e7ebf2] bg-white px-[13px] text-[13px] font-semibold text-[#526075]"><span className="grid h-[34px] w-[34px] place-items-center rounded-full bg-[#e6edff] text-xs font-extrabold text-[#4168d7]">JS</span> Júlia Santos</div>
 					</div>
 				</header>
 
-				<section className="mb-5 grid grid-cols-2 gap-2.5 min-[521px]:gap-4 min-[851px]:grid-cols-4" aria-label="Indicadores do dia">
+				<section className="mb-5 grid grid-cols-2 gap-2.5 min-[521px]:gap-4 min-[851px]:grid-cols-4" aria-label="Today's metrics">
 					{metrics.map((metric) => (
 						<article className="rounded-[15px] border border-[#e9edf3] bg-white p-[15px] shadow-[0_3px_12px_rgba(27,46,77,0.025)] min-[521px]:p-5" key={metric.label}>
 							<div className="flex items-center justify-between text-[13px] font-semibold text-[#788397]">
@@ -51,7 +51,7 @@ export default function Dashboard() {
 								<span className={`grid h-[38px] w-[38px] place-items-center rounded-[11px] text-[19px] ${metricIconStyles[metric.tone]}`}>{metric.icon}</span>
 							</div>
 							<div className="my-2 mt-[17px] text-2xl font-bold tracking-[-.04em] min-[521px]:text-[29px]">{metric.value}</div>
-							<div className="flex items-center gap-[7px] text-xs text-[#8a94a4]"><span className="font-bold text-[#24a16c]">{metric.change}</span><span>em relação a ontem</span></div>
+							<div className="flex items-center gap-[7px] text-xs text-[#8a94a4]"><span className="font-bold text-[#24a16c]">{metric.change}</span><span>compared to yesterday</span></div>
 						</article>
 					))}
 				</section>
@@ -59,10 +59,10 @@ export default function Dashboard() {
 				<section className="grid grid-cols-1 gap-5 min-[851px]:grid-cols-[minmax(0,1.65fr)_minmax(280px,1fr)]">
 					<article className="rounded-[15px] border border-[#e9edf3] bg-white p-[17px] shadow-[0_3px_12px_rgba(27,46,77,0.025)] min-[521px]:p-[22px]">
 						<div className="flex items-start justify-between gap-3">
-							<div><h2 className="text-base font-bold">Volume de atendimentos</h2><p className="mt-1.5 text-xs text-[#8a94a4]">Pacientes triados ao longo do dia</p></div>
-							<button className="rounded-lg border border-[#e9edf3] bg-white px-2.5 py-2 text-xs text-[#667286]" type="button">Últimos 7 dias⌄</button>
+							<div><h2 className="text-base font-bold">Support volume</h2><p className="mt-1.5 text-xs text-[#8a94a4]">Patients triaged throughout the day</p></div>
+							<button className="rounded-lg border border-[#e9edf3] bg-white px-2.5 py-2 text-xs text-[#667286]" type="button">Last 7 days⌄</button>
 						</div>
-						<div className="mt-5 h-[220px]" role="img" aria-label="Gráfico de atendimentos crescente ao longo da semana">
+						<div className="mt-5 h-[220px]" role="img" aria-label="Support volume increasing throughout the week">
 							<svg className="h-[185px] w-full overflow-visible" viewBox="0 0 432 130" preserveAspectRatio="none">
 								<defs><linearGradient id="chartFill" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stopColor="#6b8af0" stopOpacity=".2"/><stop offset="100%" stopColor="#6b8af0" stopOpacity="0"/></linearGradient></defs>
 								{[20, 55, 90, 125].map((y) => <line key={y} x1="0" x2="432" y1={y} y2={y} stroke="#edf0f5" strokeDasharray="4 5" />)}
@@ -76,8 +76,8 @@ export default function Dashboard() {
 
 					<article className="rounded-[15px] border border-[#e9edf3] bg-white p-[17px] shadow-[0_3px_12px_rgba(27,46,77,0.025)] min-[521px]:p-[22px]">
 						<div className="flex items-start justify-between gap-3">
-							<div><h2 className="text-base font-bold">Atendimentos recentes</h2><p className="mt-1.5 text-xs text-[#8a94a4]">Pacientes aguardando triagem</p></div>
-							<button className="cursor-pointer border-0 bg-transparent text-xs font-bold text-[#5275de]" type="button">Ver todos</button>
+							<div><h2 className="text-base font-bold">Recent visits</h2><p className="mt-1.5 text-xs text-[#8a94a4]">Patients waiting for triage</p></div>
+							<button className="cursor-pointer border-0 bg-transparent text-xs font-bold text-[#5275de]" type="button">View all</button>
 						</div>
 						<div className="mt-[19px]">
 							{cases.map((patient) => (
@@ -93,7 +93,7 @@ export default function Dashboard() {
 
 				<aside className="mt-5 flex items-center gap-[13px] rounded-[13px] border border-[#e6ebfa] bg-[#f0f4ff] px-[17px] py-[15px] text-xs text-[#526487]">
 					<span className="grid h-[38px] w-[38px] shrink-0 place-items-center rounded-[11px] bg-[#edf2ff] text-[19px] text-[#5275de]">ⓘ</span>
-					<div><strong className="mb-[3px] block text-[13px] text-[#35496f]">Unidade funcionando normalmente</strong>Equipe completa e todos os setores operacionais.</div>
+					<div><strong className="mb-[3px] block text-[13px] text-[#35496f]">Facility operating normally</strong>Full team on duty and all departments operational.</div>
 				</aside>
 			</div>
 		</main>
