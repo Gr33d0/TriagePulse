@@ -19,12 +19,20 @@ def store_email(
     subject: str,
     body: str,
     mailbox: str,
+    reply_to: str | None,
+    message_id: str | None,
+    references_header: str | None,
+    can_reply: bool,
 ) -> None:
     stored_email = StoredEmail(
         mail_for=mailbox,
         email=sender,
         title=subject,
         body=body,
+        reply_to=reply_to,
+        message_id=message_id,
+        references_header=references_header,
+        can_reply=can_reply,
     )
     db.add(stored_email)
     try:

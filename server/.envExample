@@ -1,3 +1,6 @@
-EMAIL_USER = 'USER_EMAIL_ADDRESS'
-EMAIL_PASSWORD = 'USER_PASSWORD'
-EMAIL_IMAP_URL = 'imap.gmail.com'
+DATABASE_URL=postgresql+psycopg://USER:PASSWORD@localhost:5432/triagepulse
+EMAIL_IMAP_URL=imap.gmail.com
+EMAIL_USER=your-email@gmail.com
+EMAIL_PASSWORD=your-app-password
+EMAIL_SMTP_HOST=smtp.gmail.com
+EMAIL_SMTP_PORT=465

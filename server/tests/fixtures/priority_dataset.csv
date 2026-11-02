@@ -1,0 +1,31 @@
+id,title,body,expected_urgency,rationale
+H01,Payment service unavailable,"Checkout has been down since 9 AM, and no customers can complete their orders. Sales are stopped across all stores.",High,Widespread outage with immediate impact on orders
+H02,Possible data exposure,"We found customer documents accessible through a public link. We need to block access and investigate immediately.",High,Privacy risk requiring immediate containment
+H03,Critical delivery delayed,"The order contains equipment needed to keep the intensive care unit running. The hospital says its current supply runs out today.",High,Immediate operational risk to a critical service
+H04,Primary account compromised,"I received login alerts I do not recognize, and my password was changed without my authorization. I can no longer access the account.",High,Possible active account compromise
+H05,Error blocking operations,"After this morning's update, all operators get an error when printing labels. We have hundreds of shipments that must go out today.",High,Operational blockage with a same-day deadline
+H06,Transfer cancellation needed today,"A high-value transfer was scheduled to the wrong account, and the bank says it can still be canceled until 2 PM today.",High,Imminent deadline to prevent significant financial loss
+H07,Production app inaccessible,"The on-call team cannot access the production dashboard, and orders have been piling up for two hours.",High,Production outage with growing impact
+H08,Refrigeration failure,"The warehouse sensor shows the temperature is out of range, and refrigerated products may spoil. The team is on site waiting for instructions.",High,Imminent risk of losing temperature-sensitive inventory
+H09,Essential service interrupted,"Since an integration failed, no prescriptions are being sent to pharmacies. Patients need to pick up their medication today.",High,Essential service failure affecting patients today
+H10,Certificate expires in one hour,"The production domain certificate expires at 4 PM, and automatic renewal failed. After that, customers may no longer be able to access the service.",High,Imminent outage risk with an explicit deadline
+M01,Duplicate amount on invoice,"This month's invoice appears to include the installation fee twice. Could you check and send a corrected version?",Medium,Billing issue requiring review but with no immediate deadline or risk
+M02,Incomplete reports,"The weekly reports are missing Tuesday's data. We can still access the data in the application, but the report needs to be fixed.",Medium,Functional issue with a temporary workaround
+M03,Request to amend contract,"I would like to update the company's billing address for the next cycle. Could you tell me which documents are required?",Medium,Administrative request requiring follow-up
+M04,Occasional synchronization delay,"Some contacts take about ten minutes to appear in the CRM after import. Work can continue, but this is causing duplicates.",Medium,Recurring issue with moderate and manageable impact
+M05,Refund still pending,"The refund approved last week has not appeared on my statement yet. Could you confirm its status and expected timeline?",Medium,Financial follow-up request without immediate urgency
+M06,Error exporting history,"History exports fail for periods longer than six months. Monthly exports work normally; we need help getting the annual file.",Medium,Feature is partially available and support is needed
+M07,Invitations not reaching some colleagues,"Two team members did not receive their email invitations. We can continue with the other users, but need to complete their access.",Medium,Limited impact on a few users with a workaround
+M08,Request for scheduled maintenance,"Could you schedule maintenance for the office printer this week? It still works, but it is making noise and needs to be checked.",Medium,Maintenance needed without total failure or immediate risk
+M09,Integration requires reauthorization,"The calendar integration disconnects once a day and needs to be authorized again. Events remain available in the original calendar.",Medium,Recurring incident with an available workaround
+M10,Update company billing name before next invoice,"The company has changed its trading name. Please update the billing profile before next week's invoice is issued so it shows the correct legal name.",Medium,Concrete billing change requested before the next invoice is issued
+L01,Support hours,"Hello, what are your support hours during holidays?",Low,Informational question with no operational impact or deadline
+L02,Plan information,"Could you send a description of the available plans and included features?",Low,General information request with no urgency
+L03,Receipt confirmation,"I just wanted to confirm that you received the form I sent yesterday. There is no rush to reply.",Low,Confirmation with no stated urgency
+L04,Tutorial for adding users,"Is there a guide for adding a new user to the account? We are planning to do this next month.",Low,How-to question about a future task
+L05,App availability,"Does the application work on Android tablets, or is it only compatible with computers?",Low,Simple compatibility question
+L06,Change notification format,"Would it be possible to receive a weekly summary instead of individual notifications? This is just a preference for our team.",Low,Preference suggestion with no impact on current operations
+L07,Old payment receipt,"When you have a chance, could you resend the payment receipt from March?",Low,Document request with no urgent deadline
+L08,Thanks for the support,"Thanks for your help with the setup. The team has completed everything and it is working well.",Low,Thank-you message with no pending action
+L09,Product demonstration meeting,"We are evaluating tools for next quarter. Could we schedule a demonstration at a convenient time?",Low,Future interest with no near-term deadline
+L10,Update mailing address for reference,"Could you update the mailing address shown in the profile? It does not affect current invoices or deliveries.",Low,Profile update with no immediate consequences

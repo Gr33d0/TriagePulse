@@ -1,4 +1,5 @@
 from contextlib import closing
+from typing import cast
 
 from sqlalchemy.orm import Session
 
@@ -21,6 +22,10 @@ def fetch_and_store_unseen_emails(db: Session) -> list[dict[str, str]]:
                 email.subject,
                 email.body,
                 email.mailbox,
+                email.reply_to,
+                email.message_id,
+                email.references_header,
+                email.can_reply,
             )
             emails.append(
                 {
@@ -36,20 +41,30 @@ def fetch_and_store_unseen_emails(db: Session) -> list[dict[str, str]]:
 def analyze_and_store_emails(db: Session, limit: int) -> list[dict[str, object]]:
     results = []
     for stored_email in get_recent_emails(db, limit):
-        analysis = analyze_email(stored_email.title, stored_email.body)
-        store_llm_response(
-            db,
-            stored_email.id,
-            analysis.summary,
-            analysis.urgency,
-        )
+        analysis = stored_email.analysis
+        if analysis is None:
+            classification = analyze_email(stored_email.title, stored_email.body)
+            store_llm_response(
+                db,
+                cast(int, stored_email.id),
+                classification.summary,
+                classification.urgency,
+            )
+            summary = classification.summary
+            urgency = classification.urgency
+        else:
+            summary = analysis.summary
+            urgency = analysis.urgency
+
         results.append(
             {
                 "id": stored_email.id,
                 "email": stored_email.email,
                 "title": stored_email.title,
-                "summary": analysis.summary,
-                "urgency": analysis.urgency,
+                "received_at": stored_email.received_at,
+                "summary": summary,
+                "urgency": urgency,
+                "can_reply": stored_email.can_reply,
             }
         )
     return results

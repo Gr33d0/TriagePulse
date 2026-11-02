@@ -1,6 +1,6 @@
-import type { ReactNode } from 'react';
+import type { ReactNode } from "react";
 
-type Page = 'dashboard' | 'inbox';
+type Page = "dashboard" | "inbox";
 
 type LayoutProps = {
 	children: ReactNode;
@@ -12,14 +12,14 @@ export default function Layout({ children, currentPage, onPageChange }: LayoutPr
 	const linkClassName = (active: boolean) =>
 		`block rounded-lg px-3.5 py-3 ${
 			active
-				? 'bg-blue-50 font-semibold text-blue-700'
-				: 'font-medium text-slate-600 hover:bg-slate-50'
+				? "bg-indigo-50 font-semibold text-indigo-700"
+				: "font-medium text-slate-600 hover:bg-slate-50"
 		}`;
 
 	return (
 		<div className="min-h-screen bg-slate-50 font-sans text-slate-900">
 			<header className="flex h-16 items-center justify-between border-b border-slate-200 bg-white px-6">
-				<a href="/" className="text-xl font-bold text-blue-700 no-underline">
+				<a href="/" className="text-xl font-bold text-indigo-700 no-underline">
 					TriagePulse
 				</a>
 				<span className="text-sm text-slate-500">Support dashboard</span>
@@ -32,10 +32,10 @@ export default function Layout({ children, currentPage, onPageChange }: LayoutPr
 							href="/inbox"
 							onClick={(event) => {
 								event.preventDefault();
-								onPageChange('inbox');
+								onPageChange("inbox");
 							}}
-							className={linkClassName(currentPage === 'inbox')}
-							aria-current={currentPage === 'inbox' ? 'page' : undefined}
+							className={linkClassName(currentPage === "inbox")}
+							aria-current={currentPage === "inbox" ? "page" : undefined}
 						>
 							Inbox
 						</a>
@@ -43,10 +43,10 @@ export default function Layout({ children, currentPage, onPageChange }: LayoutPr
 							href="/dashboard"
 							onClick={(event) => {
 								event.preventDefault();
-								onPageChange('dashboard');
+								onPageChange("dashboard");
 							}}
-							className={linkClassName(currentPage === 'dashboard')}
-							aria-current={currentPage === 'dashboard' ? 'page' : undefined}
+							className={linkClassName(currentPage === "dashboard")}
+							aria-current={currentPage === "dashboard" ? "page" : undefined}
 						>
 							Dashboard
 						</a>

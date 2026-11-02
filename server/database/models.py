@@ -1,4 +1,4 @@
-from sqlalchemy import BigInteger, CheckConstraint, Column, ForeignKey, Text
+from sqlalchemy import BigInteger, Boolean, CheckConstraint, Column, DateTime, ForeignKey, Text, func
 from sqlalchemy.orm import relationship
 
 from database.postgreSQL import Base
@@ -12,6 +12,12 @@ class StoredEmail(Base):
     email = Column(Text, nullable=False)
     title = Column(Text, nullable=False)
     body = Column(Text, nullable=False)
+    reply_to = Column(Text, nullable=True)
+    message_id = Column(Text, nullable=True)
+    references_header = Column(Text, nullable=True)
+    can_reply = Column(Boolean, nullable=False, default=False)
+    received_at = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+    replied_at = Column(DateTime(timezone=True), nullable=True)
 
     analysis = relationship(
         "EmailAnalysis",

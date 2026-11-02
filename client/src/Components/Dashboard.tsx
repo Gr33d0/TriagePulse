@@ -1,99 +1,208 @@
-const metrics = [
-	{ label: "Patients served", value: "1,284", change: "+12.8%", icon: "♙", tone: "blue" },
-	{ label: "Waiting", value: "38", change: "−4.3%", icon: "◷", tone: "amber" },
-	{ label: "Average time", value: "18 min", change: "−2 min", icon: "⌁", tone: "purple" },
-	{ label: "Discharged today", value: "96", change: "+8.2%", icon: "✓", tone: "green" },
-];
+import { useEffect, useState } from "react";
 
-const cases = [
-	{ initials: "ML", name: "Mariana Lima", detail: "Abdominal pain · 12:42", priority: "Urgent", color: "rose" },
-	{ initials: "RC", name: "Rafael Costa", detail: "Fever · 12:35", priority: "Moderate", color: "amber" },
-	{ initials: "AS", name: "Ana Souza", detail: "Persistent cough · 12:18", priority: "Low", color: "green" },
-	{ initials: "PM", name: "Pedro Martins", detail: "Migraine · 11:56", priority: "Moderate", color: "amber" },
-];
-
-const chartPoints = "0,112 48,94 96,103 144,62 192,76 240,46 288,59 336,25 384,39 432,14";
-
-const metricIconStyles: Record<string, string> = {
-	blue: "bg-[#edf2ff] text-[#5275de]",
-	amber: "bg-[#fff5e6] text-[#d89326]",
-	purple: "bg-[#f3edff] text-[#8c64d8]",
-	green: "bg-[#e8f8f0] text-[#2ca875]",
+type DashboardEmail = {
+	id: number;
+	email: string;
+	title: string;
+	urgency: "High" | "Medium" | "Low" | null;
 };
 
-const priorityStyles: Record<string, string> = {
-	rose: "bg-[#fff0f0] text-[#d85c5c]",
-	amber: "bg-[#fff6e8] text-[#c98a23]",
-	green: "bg-[#eaf8f1] text-[#29956a]",
+type DashboardData = {
+	total_emails: number;
+	urgent_emails: number;
+	awaiting_reply: number;
+	replies_sent: number;
+	volume: { date: string; count: number }[];
+	recent_emails: DashboardEmail[];
+};
+
+const metricStyles = [
+	{ icon: "✉", tone: "blue" },
+	{ icon: "!", tone: "rose" },
+	{ icon: "◷", tone: "amber" },
+	{ icon: "✓", tone: "green" },
+];
+
+const metricIconStyles: Record<string, string> = {
+	blue: "bg-indigo-50 text-indigo-700",
+	rose: "bg-red-50 text-red-700",
+	amber: "bg-amber-50 text-amber-700",
+	green: "bg-emerald-50 text-emerald-700",
+};
+
+const urgencyStyles: Record<string, string> = {
+	High: "bg-red-100 text-red-700",
+	Medium: "bg-amber-100 text-amber-700",
+	Low: "bg-emerald-100 text-emerald-700",
 };
 
 export default function Dashboard() {
+	const [data, setData] = useState<DashboardData | null>(null);
+	const [error, setError] = useState<string | null>(null);
+
+	useEffect(() => {
+		const controller = new AbortController();
+
+		async function loadDashboard() {
+			try {
+				const response = await fetch("/api/dashboard_metrics", {
+					signal: controller.signal,
+				});
+				if (!response.ok) {
+					throw new Error(`Could not load dashboard metrics (HTTP ${response.status}).`);
+				}
+				setData(await response.json());
+			} catch (requestError) {
+				if (requestError instanceof Error && requestError.name === "AbortError") {
+					return;
+				}
+				setError(
+					requestError instanceof Error
+						? requestError.message
+						: "An error occurred while loading dashboard metrics.",
+				);
+			}
+		}
+
+		void loadDashboard();
+		return () => controller.abort();
+	}, []);
+
+	const metrics = data
+		? [
+				{ label: "Emails received", value: data.total_emails },
+				{ label: "High priority", value: data.urgent_emails },
+				{ label: "Awaiting reply", value: data.awaiting_reply },
+				{ label: "Replies sent", value: data.replies_sent },
+			]
+		: [];
+	const chartValues = data?.volume ?? [];
+	const maxVolume = Math.max(1, ...chartValues.map((day) => day.count));
+	const chartCoordinates = chartValues.map((day, index) => ({
+		x: chartValues.length > 1 ? (index / (chartValues.length - 1)) * 432 : 216,
+		y: 112 - (day.count / maxVolume) * 98,
+	}));
+	const chartPoints = chartCoordinates.map(({ x, y }) => `${x},${y}`).join(" ");
+
 	return (
-		<main className="min-h-screen bg-[#f5f7fb] p-4 font-sans text-[#182230] sm:p-[22px] min-[851px]:p-8">
-			<div className="mx-auto max-w-[1240px]">
-				<header className="mb-[30px] flex flex-col items-start justify-between gap-5 min-[521px]:flex-row min-[521px]:items-center">
-					<div>
-						<p className="mb-[7px] text-xs font-bold uppercase tracking-[.09em] text-[#788397]">TriagePulse · Overview</p>
-						<h1 className="text-[clamp(25px,3vw,32px)] font-bold tracking-[-.04em]">Good morning, team 👋</h1>
-						<p className="mt-[7px] text-sm text-[#7c8798]">Monitor your facility's support workflow.</p>
-					</div>
-					<div className="flex w-full items-center justify-between gap-3 min-[521px]:w-auto">
-						<div className="flex h-[42px] items-center gap-[9px] rounded-[11px] border border-[#e7ebf2] bg-white px-[13px] text-[13px] font-semibold text-[#526075]"><span>▦</span> Today, October 24</div>
-						<div className="flex h-[42px] items-center gap-[9px] rounded-[11px] border border-[#e7ebf2] bg-white px-[13px] text-[13px] font-semibold text-[#526075]"><span className="grid h-[34px] w-[34px] place-items-center rounded-full bg-[#e6edff] text-xs font-extrabold text-[#4168d7]">JS</span> Júlia Santos</div>
-					</div>
+		<main className="min-h-screen bg-slate-50 px-4 py-10 font-sans text-slate-900 sm:px-6 lg:px-8">
+			<div className="mx-auto max-w-6xl">
+				<header className="mb-[30px]">
+					<p className="mb-[7px] text-xs font-bold uppercase tracking-[.09em] text-indigo-600">
+						TriagePulse · Overview
+					</p>
+					<h1 className="text-[clamp(25px,3vw,32px)] font-bold tracking-[-.04em]">
+						Email support overview
+					</h1>
+					<p className="mt-[7px] text-sm text-slate-500">
+						Live metrics from the emails stored in your inbox.
+					</p>
 				</header>
 
-				<section className="mb-5 grid grid-cols-2 gap-2.5 min-[521px]:gap-4 min-[851px]:grid-cols-4" aria-label="Today's metrics">
-					{metrics.map((metric) => (
-						<article className="rounded-[15px] border border-[#e9edf3] bg-white p-[15px] shadow-[0_3px_12px_rgba(27,46,77,0.025)] min-[521px]:p-5" key={metric.label}>
-							<div className="flex items-center justify-between text-[13px] font-semibold text-[#788397]">
+				{error && (
+					<p className="mb-5 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700" role="alert">
+						{error}
+					</p>
+				)}
+
+				<section className="mb-5 grid grid-cols-2 gap-2.5 sm:gap-4 lg:grid-cols-4" aria-label="Email metrics">
+					{metrics.map((metric, index) => (
+						<article className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm sm:p-5" key={metric.label}>
+							<div className="flex items-center justify-between gap-2 text-[13px] font-semibold text-slate-500">
 								<span>{metric.label}</span>
-								<span className={`grid h-[38px] w-[38px] place-items-center rounded-[11px] text-[19px] ${metricIconStyles[metric.tone]}`}>{metric.icon}</span>
+								<span className={`grid h-[38px] w-[38px] shrink-0 place-items-center rounded-xl text-[19px] ${metricIconStyles[metricStyles[index].tone]}`}>
+									{metricStyles[index].icon}
+								</span>
 							</div>
-							<div className="my-2 mt-[17px] text-2xl font-bold tracking-[-.04em] min-[521px]:text-[29px]">{metric.value}</div>
-							<div className="flex items-center gap-[7px] text-xs text-[#8a94a4]"><span className="font-bold text-[#24a16c]">{metric.change}</span><span>compared to yesterday</span></div>
+							<div className="my-2 mt-[17px] text-2xl font-bold tracking-[-.04em] sm:text-[29px]">
+								{metric.value.toLocaleString()}
+							</div>
+							<div className="text-xs text-slate-500">All stored email records</div>
 						</article>
 					))}
+					{!data && !error && (
+						<p className="col-span-full py-6 text-center text-sm text-slate-500">Loading dashboard metrics...</p>
+					)}
 				</section>
 
-				<section className="grid grid-cols-1 gap-5 min-[851px]:grid-cols-[minmax(0,1.65fr)_minmax(280px,1fr)]">
-					<article className="rounded-[15px] border border-[#e9edf3] bg-white p-[17px] shadow-[0_3px_12px_rgba(27,46,77,0.025)] min-[521px]:p-[22px]">
-						<div className="flex items-start justify-between gap-3">
-							<div><h2 className="text-base font-bold">Support volume</h2><p className="mt-1.5 text-xs text-[#8a94a4]">Patients triaged throughout the day</p></div>
-							<button className="rounded-lg border border-[#e9edf3] bg-white px-2.5 py-2 text-xs text-[#667286]" type="button">Last 7 days⌄</button>
+				<section className="grid grid-cols-1 gap-5 lg:grid-cols-[minmax(0,1.65fr)_minmax(280px,1fr)]">
+					<article className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6">
+						<div>
+							<h2 className="text-base font-bold">Email volume</h2>
+							<p className="mt-1.5 text-xs text-slate-500">Emails received in the last 7 days</p>
 						</div>
-						<div className="mt-5 h-[220px]" role="img" aria-label="Support volume increasing throughout the week">
-							<svg className="h-[185px] w-full overflow-visible" viewBox="0 0 432 130" preserveAspectRatio="none">
-								<defs><linearGradient id="chartFill" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stopColor="#6b8af0" stopOpacity=".2"/><stop offset="100%" stopColor="#6b8af0" stopOpacity="0"/></linearGradient></defs>
-								{[20, 55, 90, 125].map((y) => <line key={y} x1="0" x2="432" y1={y} y2={y} stroke="#edf0f5" strokeDasharray="4 5" />)}
-								<polygon points={`0,130 ${chartPoints} 432,130`} fill="url(#chartFill)" />
-								<polyline points={chartPoints} fill="none" stroke="#6483e8" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
-								{[0, 48, 96, 144, 192, 240, 288, 336, 384, 432].map((x, i) => <circle key={x} cx={x} cy={[112, 94, 103, 62, 76, 46, 59, 25, 39, 14][i]} r="3.5" fill="white" stroke="#6483e8" strokeWidth="2" />)}
-							</svg>
-							<div className="flex justify-between text-[11px] text-[#9ba4b2]"><span>08h</span><span>10h</span><span>12h</span><span>14h</span><span>16h</span><span>18h</span></div>
-						</div>
+						{chartValues.length > 0 ? (
+							<div className="mt-5 h-[220px]" role="img" aria-label="Email volume over the last seven days">
+								<svg className="h-[185px] w-full overflow-visible" viewBox="0 0 432 130" preserveAspectRatio="none">
+									<defs>
+										<linearGradient id="chartFill" x1="0" x2="0" y1="0" y2="1">
+											<stop offset="0%" stopColor="#6366f1" stopOpacity=".2" />
+											<stop offset="100%" stopColor="#6366f1" stopOpacity="0" />
+										</linearGradient>
+									</defs>
+									{[20, 55, 90, 125].map((y) => (
+										<line key={y} x1="0" x2="432" y1={y} y2={y} stroke="#e2e8f0" strokeDasharray="4 5" />
+									))}
+									<polygon points={`0,130 ${chartPoints} 432,130`} fill="url(#chartFill)" />
+									<polyline points={chartPoints} fill="none" stroke="#6366f1" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+									{chartCoordinates.map(({ x, y }, index) => (
+										<circle key={chartValues[index].date} cx={x} cy={y} r="3.5" fill="white" stroke="#6366f1" strokeWidth="2" />
+									))}
+								</svg>
+								<div className="flex justify-between text-[11px] text-slate-400">
+									{chartValues.map((day) => (
+										<span key={day.date} title={`${day.count} emails`}>
+											{new Date(`${day.date}T12:00:00`).toLocaleDateString(undefined, { weekday: "short" })}
+										</span>
+									))}
+								</div>
+							</div>
+						) : (
+							<p className="py-16 text-center text-sm text-slate-500">
+								{data ? "No emails received in the last 7 days." : "Loading email volume..."}
+							</p>
+						)}
 					</article>
 
-					<article className="rounded-[15px] border border-[#e9edf3] bg-white p-[17px] shadow-[0_3px_12px_rgba(27,46,77,0.025)] min-[521px]:p-[22px]">
+					<article className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6">
 						<div className="flex items-start justify-between gap-3">
-							<div><h2 className="text-base font-bold">Recent visits</h2><p className="mt-1.5 text-xs text-[#8a94a4]">Patients waiting for triage</p></div>
-							<button className="cursor-pointer border-0 bg-transparent text-xs font-bold text-[#5275de]" type="button">View all</button>
+							<div>
+								<h2 className="text-base font-bold">Recent emails</h2>
+								<p className="mt-1.5 text-xs text-slate-500">Latest messages in your inbox</p>
+							</div>
+							<a href="/inbox" className="text-xs font-bold text-indigo-600">View inbox</a>
 						</div>
 						<div className="mt-[19px]">
-							{cases.map((patient) => (
-								<div className="flex items-center gap-[11px] border-b border-[#f0f2f6] py-[13px] last:border-0" key={patient.name}>
-									<div className="grid h-[38px] w-[38px] shrink-0 place-items-center rounded-xl bg-[#f0f3f8] text-[11px] font-extrabold text-[#68758b]">{patient.initials}</div>
-									<div className="min-w-0 flex-1"><p className="text-[13px] font-bold">{patient.name}</p><p className="mt-1 text-[11px] text-[#929baa]">{patient.detail}</p></div>
-									<span className={`whitespace-nowrap rounded-[7px] px-2 py-1.5 text-[10px] font-bold ${priorityStyles[patient.color]}`}>{patient.priority}</span>
-								</div>
-							))}
+							{data?.recent_emails.length ? (
+								data.recent_emails.map((email) => (
+									<div className="flex items-center gap-[11px] border-b border-slate-100 py-[13px] last:border-0" key={email.id}>
+										<div className="grid h-[38px] w-[38px] shrink-0 place-items-center rounded-xl bg-slate-100 text-[11px] font-extrabold text-slate-600">
+											{email.urgency === "High" ? "!" : "✉"}
+										</div>
+										<div className="min-w-0 flex-1">
+											<p className="truncate text-[13px] font-bold">{email.title || "(No subject)"}</p>
+											<p className="mt-1 truncate text-[11px] text-slate-400">{email.email}</p>
+										</div>
+										<span className={`whitespace-nowrap rounded-[7px] px-2 py-1.5 text-[10px] font-bold ${urgencyStyles[email.urgency ?? ""] ?? "bg-slate-100 text-slate-500"}`}>
+											{email.urgency ?? "Not analyzed"}
+										</span>
+									</div>
+								))
+							) : (
+								<p className="py-8 text-center text-sm text-slate-500">
+									{data ? "No emails found." : "Loading recent emails..."}
+								</p>
+							)}
 						</div>
 					</article>
 				</section>
 
-				<aside className="mt-5 flex items-center gap-[13px] rounded-[13px] border border-[#e6ebfa] bg-[#f0f4ff] px-[17px] py-[15px] text-xs text-[#526487]">
-					<span className="grid h-[38px] w-[38px] shrink-0 place-items-center rounded-[11px] bg-[#edf2ff] text-[19px] text-[#5275de]">ⓘ</span>
-					<div><strong className="mb-[3px] block text-[13px] text-[#35496f]">Facility operating normally</strong>Full team on duty and all departments operational.</div>
+				<aside className="mt-5 flex items-center gap-[13px] rounded-xl border border-indigo-100 bg-indigo-50 px-[17px] py-[15px] text-xs text-indigo-900">
+					<span className="grid h-[38px] w-[38px] shrink-0 place-items-center rounded-xl bg-white text-[19px] text-indigo-600">ⓘ</span>
+					<div>
+						<strong className="mb-[3px] block text-[13px] text-indigo-900">Metrics reflect stored email data</strong>
+						Urgency counts include emails already analyzed by the LLM.
+					</div>
 				</aside>
 			</div>
 		</main>

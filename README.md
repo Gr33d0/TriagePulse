@@ -1,38 +1,52 @@
 # TriagePulse
 
-TriagePulse é um protótipo de sistema para triagem inteligente de mensagens e atendimento, com foco em inbox de suporte, indicadores de urgência e dashboard executivo. O projeto combina frontend em React + Vite + Tailwind com backend em FastAPI e integração com Gmail/IMAP e banco PostgreSQL.
+TriagePulse is an MVP application for support email triage. It receives emails from Gmail, stores them in PostgreSQL, uses a local LLM to summarize and classify priority, and lets support agents reply via SMTP. The frontend is built with React, Vite, and Tailwind CSS; the API uses FastAPI.
 
-## Visão geral
+## Overview
 
-A ideia central do projeto é reduzir o tempo que uma equipe de atendimento gasta classificando e priorizando solicitações, destacando mensagens urgentes e organizando o fluxo de trabalho em uma interface simples e visual.
+The goal is to reduce the time support teams spend sorting and prioritizing requests by highlighting urgent messages and organizing the workflow in a clear interface.
 
-O produto atual inclui:
-- Caixa de entrada com mensagens recentes
-- Níveis de urgência (Alta, Média, Baixa)
-- Dashboard de métricas operacionais
-- Integração com emails do Gmail via IMAP
-- Persistência das mensagens em banco PostgreSQL
-- API em FastAPI para consulta e status do sistema
+The email workflow has been tested successfully: receiving, priority analysis, and sending replies.
 
-## Problema que resolve
+Available features:
+- Fetch unread Gmail messages via IMAP and store them in PostgreSQL
+- Summarize messages and classify priority (`High`, `Medium`, `Low`) with Ollama
+- Inbox with received dates and filters for priority, sender, and date
+- AI-generated reply suggestions guided by an editable style template
+- Review and manually send replies via SMTP, preserving the email thread when possible
+- Dashboard metrics for received emails, high-priority emails, pending replies, and sent replies
 
-Equipes de suporte e atendimento normalmente lidam com:
-- muitos e-mails chegando ao mesmo tempo
-- dificuldade para identificar urgência de cada mensagem
-- perda de tempo em triagem manual
-- pouca visibilidade de volume e desempenho
+## Screenshots
 
-TriagePulse busca automatizar parte dessa triagem e organizar a operação em uma visão clara para a equipe.
+Add your screenshots to the root `screenshots/` folder using these suggested filenames:
 
-## Stack tecnológica
+### Dashboard
 
-### Frontend
+![TriagePulse dashboard](./screenshots/dashboard.png)
+
+### Inbox and replies
+
+![TriagePulse inbox with filters and reply controls](./screenshots/inbox.png)
+
+## Problem
+
+Support teams often deal with:
+- Large volumes of incoming emails
+- Difficulty identifying which messages are urgent
+- Time-consuming manual triage
+- Limited visibility into workload and performance
+
+TriagePulse automates part of this triage process and gives teams a clear view of their workload.
+
+## Tech stack
+
+### Front end
 - React
 - Vite
 - Tailwind CSS
 - TypeScript
 
-### Backend
+### Back end
 - Python
 - FastAPI
 - SQLAlchemy
@@ -40,136 +54,140 @@ TriagePulse busca automatizar parte dessa triagem e organizar a operação em um
 - Uvicorn
 - python-dotenv
 
-### Dados e integrações
+### Data and integrations
 - PostgreSQL
-- IMAP do Gmail
-- Ollama (em desenvolvimento / referência para IA local)
+- Gmail IMAP
+- Ollama for classification, summaries, and reply suggestions
 
-## Estrutura do projeto
+## Project structure
 
 ```text
 TriagePulse/
-├── client/
-│   ├── public/
-│   ├── src/
-│   ├── index.html
-│   ├── package.json
-│   ├── vite.config.mjs
-│   └── tailwind.config.js
-├── server/
-│   ├── database/
-│   ├── helpers/
-│   ├── main.py
-│   ├── pyproject.toml
-│   ├── requirements.txt
-│   └── uv.lock
-├── README.md
-└── .gitignore
+|-- client/
+|   |-- public/
+|   |-- src/
+|   |-- index.html
+|   |-- package.json
+|   |-- vite.config.mjs
+|   `-- tailwind.config.js
+|-- server/
+|   |-- database/
+|   |-- helpers/
+|   |-- main.py
+|   |-- pyproject.toml
+|   |-- requirements.txt
+|   `-- uv.lock
+|-- screenshots/
+|-- README.md
+`-- .gitignore
 ```
 
-## Funcionalidades atuais
+## Current features
 
 ### Dashboard
-A interface de dashboard apresenta uma visão geral do atendimento com:
-- total de pacientes atendidos
-- fila de espera
-- tempo médio
-- casos urgentes
-- gráfico de volume de atendimentos
-- lista de atendimentos recentes
+The dashboard shows the total number of emails, high-priority emails, eligible emails awaiting a reply, and sent replies. It also includes email volume for the last seven days and a list of recent messages.
 
 ### Inbox
-A página de inbox lista mensagens com:
-- endereço do remetente
-- assunto
-- resumo gerado por NLP
-- nível de urgência (Alta, Média ou Baixa)
-- visualização em tabela
+The inbox shows the sender, subject, received date, summary, and priority (`High`, `Medium`, `Low`). Emails can be filtered by priority, sender, and date. For eligible emails, agents can write a reply or request a suggestion from Ollama. Suggestions remain editable drafts and are only sent after review and explicit confirmation.
 
-### Backend API
-O backend tem endpoints para:
-- retornar a mensagem de boas-vindas
-- buscar e-mails não lidos do Gmail
-- salvar os e-mails no banco
-- analisar e-mails já salvos, gerar resumo e classificar urgência com Ollama
-- verificar conexão com o banco
+### Back-end API
+The back end provides endpoints to:
+- Return an API welcome message
+- Fetch unread messages from Gmail
+- Reply via SMTP to emails that accept replies
+- Generate reply drafts with Ollama
+- Store emails in the database
+- Analyze stored emails, generate summaries, and classify priority with Ollama
+- Check database connectivity
 
-## Fluxo de funcionamento
+## Workflow
 
 ```text
 Gmail / IMAP
-    ↓
-FastAPI API
-    ↓
-Busca de mensagens não lidas
-    ↓
-Validação e persistência no banco PostgreSQL
-    ↓
-Análise NLP local com Ollama (assunto + corpo → resumo + urgência)
-    ↓
-React frontend
-    ↓
-Dashboard + Caixa de entrada
+    |
+    v
+FastAPI -> PostgreSQL
+    |
+    v
+Ollama (summary and priority)
+    |
+    v
+React (Dashboard + Inbox)
+    |
+    v
+Optional reply draft -> manual review -> send via SMTP
 ```
 
-## Modelos e dados
+## Data models
 
-No backend, o modelo principal é `StoredEmail` em `server/database/models.py`:
+The main back-end model is `StoredEmail` in `server/database/models.py`:
 - id
-- mail_for
-- email
+- sender and reply-to addresses
 - title
 - body
+- received_at
+- replied_at
 
-A API salva as mensagens recuperadas do Gmail no banco para permitir histórico e consultas futuras.
+Analysis data (summary and priority) is stored separately and associated with each email.
 
-## Endpoints principais
+## Main endpoints
 
 ### `GET /`
-Retorna mensagem de status inicial da API.
+Returns the API welcome message.
 
 ### `GET /get_emails`
-Busca e-mails não lidos do Gmail, salva no banco e retorna a lista em formato JSON.
+Fetches unread emails from Gmail, stores them in the database, and returns them as JSON.
 
 ### `GET /analyze_emails?limit=50`
-Lê até 50 e-mails recentes do banco, analisa o assunto e o corpo com o modelo local `llama3.2:1b` via Ollama e retorna o resumo e a urgência (`Alta`, `Média` ou `Baixa`). O limite pode ser definido entre 1 e 500. Esta rota calcula a análise ao ser chamada; não grava o resumo nem a urgência no banco.
+Reads up to 50 recent emails from the database and returns the received date, summary, and priority (`High`, `Medium`, or `Low`). `High` is for messages requiring the earliest attention due to immediate risk, a critical deadline, or significant impact; `Medium` is for issues that need follow-up but are not critical; `Low` covers routine requests with no apparent urgency. Priority is based on impact and timing, not the subject. Ollama is only called when an email has not yet been analyzed; subsequent requests reuse the stored analysis. The limit can be set between 1 and 500.
 
-A página Inbox do frontend consulta essa rota através do proxy `/api` do Vite. Para usar a análise, mantenha o backend e o serviço Ollama ativos, com o modelo instalado.
+The front-end Inbox calls this route through Vite's `/api` proxy. Keep the back end and Ollama running, with the model installed, to use email analysis.
+
+### `POST /emails/{email_id}/reply`
+Sends a text reply to the sender or `Reply-To` address of an imported email, preserving thread headers when available. The route rejects messages identified as automated or `no-reply`, and messages without a valid reply address.
+
+### `POST /emails/{email_id}/suggest-reply`
+Generates a reply draft with Ollama in the same language as the email and in a professional tone. The reply template configured in the Inbox is used as a style and structure reference. Suggestions are not sent automatically; review and edit the text before selecting "Send reply".
+
+### `GET /dashboard_metrics`
+Returns metrics calculated from stored emails: total messages, analyzed high-priority emails, eligible emails awaiting a reply, sent replies, email volume for the last seven days, and recent messages.
 
 ### `GET /db_status`
-Verifica se a conexão com o banco está funcionando.
+Checks whether the database connection is working.
 
-A documentação interativa da API também está disponível em:
+When the back end starts, the terminal shows the connection status for PostgreSQL, Gmail/IMAP, and Ollama. An unavailable integration is reported as `not connected`, but does not prevent the API from starting. Check its configuration and start the relevant service.
+
+Interactive API documentation is also available at:
 - http://localhost:8000/docs
 - http://localhost:8000/redoc
 
-## Requisitos
+## Requirements
 
-Antes de rodar o projeto, você precisa ter instalado:
+Before running the project, install or configure:
 - Python 3.12+
 - Node.js 18+
 - npm
-- PostgreSQL configurado e acessível
-- Conta Gmail com IMAP habilitado
+- An accessible PostgreSQL database
+- A Gmail account with IMAP enabled
 
-## Configuração local
+## Local setup
 
-### 1) Clone o repositório
+### 1) Clone the repository
 
 ```bash
 git clone https://github.com/Gr33d0/TriagePulse.git
 cd TriagePulse
 ```
 
-### 2) Configure o backend
+### 2) Set up the back end
 
-Entre na pasta do servidor:
+Change to the server directory:
 
 ```bash
 cd server
 ```
 
-Crie e ative um ambiente virtual:
+Create and activate a virtual environment:
 
 Windows:
 ```bash
@@ -183,50 +201,67 @@ python -m venv .venv
 source .venv/bin/activate
 ```
 
-Instale as dependências:
+Install the dependencies:
 
 ```bash
 pip install -r requirements.txt
 ```
 
-Para a análise NLP, além do pacote Python `ollama` incluído nos requisitos, instale e inicie o [Ollama](https://ollama.com/) e baixe o modelo usado pelo servidor:
+For NLP analysis, install and start [Ollama](https://ollama.com/) in addition to the Python `ollama` package included in the requirements, then download the model used by the server:
 
 ```bash
-ollama pull llama3.2:1b
+ollama pull llama3.2:latest
 ```
 
-Ou, se preferir usar o ambiente gerenciado pelo `uv`:
+The unit tests use a mocked Ollama client and do not require a running Ollama service:
+
+```bash
+python -m unittest discover -s tests
+```
+
+The project includes a dataset of 30 synthetic English emails, evenly distributed across the `High`, `Medium`, and `Low` priorities (10 examples per priority). Expected labels and rationales are in `server/tests/fixtures/priority_dataset.csv`. With Ollama running and `llama3.2:latest` installed, run this command from the `server` directory to evaluate the model:
+
+```powershell
+python -X utf8 -m scripts.evaluate_priority_model
+```
+
+The report includes accuracy, precision, recall, and F1 for each priority, a confusion matrix, and misclassified examples. In the last recorded run, `llama3.2:latest` correctly classified all 30 examples (100% accuracy and 100% recall for each priority). This result only applies to the current synthetic dataset: the prompt and example `M10` were adjusted while reviewing these cases, so the measurement is not independent and does not represent expected production accuracy. To evaluate generalization, use new, varied emails labeled by people familiar with the priority criteria.
+
+Alternatively, use the environment managed by `uv`:
 
 ```bash
 uv sync
 ```
 
-Crie um arquivo `.env` dentro de `server/` com as variáveis:
+Create a `.env` file inside `server/` with the following variables:
 
 ```env
-DATABASE_URL=postgresql+psycopg://usuario:senha@localhost:5432/triagepulse
+DATABASE_URL=postgresql+psycopg://USER:PASSWORD@localhost:5432/triagepulse
 EMAIL_IMAP_URL=imap.gmail.com
-EMAIL_USER=seu-email@gmail.com
-EMAIL_PASSWORD=sua-senha-ou-app-password
+EMAIL_USER=your-email@gmail.com
+EMAIL_PASSWORD=your-app-password
+EMAIL_SMTP_HOST=smtp.gmail.com
+EMAIL_SMTP_PORT=465
 ```
 
-Observações:
-- Para Gmail, normalmente é necessário usar uma senha de app, se o provedor exigir.
-- O projeto usa `dotenv` para carregar variáveis de ambiente.
+Notes:
+- For Gmail IMAP/SMTP authentication, use an app password; do not use your regular Google Account password.
+- Before starting the API against an existing database, apply `server/database/migrations/001_email_reply_fields.sql` and `server/database/migrations/002_dashboard_metrics.sql` in order. Emails imported before the first migration will not have reply support; fetch them again to store the required headers.
+- The project uses `dotenv` to load environment variables.
 
-Inicie a API:
+Start the API:
 
 ```bash
 uvicorn main:app --reload --port 8000
 ```
 
-A API estará disponível em:
+The API will be available at:
 - http://localhost:8000
 - http://localhost:8000/docs
 
-### 3) Configure o frontend
+### 3) Set up the front end
 
-Abra um novo terminal e entre na pasta do cliente:
+Open a new terminal and change to the client directory:
 
 ```bash
 cd client
@@ -234,41 +269,21 @@ npm install
 npm run dev
 ```
 
-A interface Web será iniciada em:
+The web interface will be available at:
 - http://localhost:5173
 
-## Observações sobre o estado atual do projeto
+## Status and limitations
 
-Este repositório está em fase de protótipo / MVP inicial. A estrutura já inclui:
-- interface visual de dashboard
-- lista de inbox com triagem por urgência
-- integração com Gmail para leitura de e-mails
-- persistência em banco
-- API base para expansão
+The main workflow - receiving, storing, analyzing/classifying, and replying to emails - has been tested successfully. The application requires PostgreSQL, Gmail credentials with IMAP/SMTP enabled, and Ollama with the configured model.
 
-Ainda há espaço para evoluir com:
-- classificação automática por IA
-- análise de sentimento
-- roteamento por departamento
-- geração de respostas automatizadas
-- autenticação
-- regras de negócio para atendimento
-- testes automatizados
-- deploy e ambiente de produção
+AI-generated suggestions should be reviewed before sending. The application does not yet include user authentication and is not documented as production-ready. The priority evaluation described above uses synthetic emails and does not guarantee production performance.
 
-## Próximos passos sugeridos
+Possible future improvements include authentication, integration tests against real services, deployment, and ongoing evaluation with new emails labeled by people.
 
-- integrar LLM para classificação e resumo dos e-mails
-- criar endpoint de análise de sentimento e urgência
-- conectar a interface à API real em vez de dados mockados
-- adicionar autenticação para usuários e equipes
-- implementar estrutura de fila por prioridade
-- persistir status de cada ticket e resposta gerada
+## Project status
 
-## Status
+Functional MVP for email triage and replies; under active development.
 
-Projeto em desenvolvimento ativo, com foco em triagem operacional de atendimento e automação inicial de inbox.
+## License
 
-## Licença
-
-Atualmente não há arquivo de licença definido no repositório. Caso queira, a licença pode ser adicionada posteriormente conforme a escolha do projeto.
+This project is licensed under the MIT License. See [LICENSE](./LICENSE) for details.
